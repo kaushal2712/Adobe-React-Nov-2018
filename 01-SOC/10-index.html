@@ -42,17 +42,14 @@
 			this.set = function(attrName, value){
 				if (_data[attrName] === value) return;
 				_data[attrName] = value;
-				_subscribers.forEach(function(subscriptionFn){
-					if (typeof subscriptionFn === 'function')
-						subscriptionFn(); 	
-				});
-				
+				_subscribers.forEach(subscriptionFn => subscriptionFn());
 			};
 
 			var _subscribers = [];
 
 			this.subscribe = function(subscriptionFn){
-				_subscribers.push(subscriptionFn);
+				if (typeof subscriptionFn === 'function')
+					_subscribers.push(subscriptionFn);
 			};
 
 			this.toJSON = function(){

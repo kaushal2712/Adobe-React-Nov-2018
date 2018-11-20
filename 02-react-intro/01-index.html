@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>React Intro</title>
+	<script src="react.development.js"></script>
+	<script src="react-dom.development.js"></script>
+	<script>
+		(function(){
+			window.addEventListener('DOMContentLoaded', init);
+
+			function init(){
+				var btnRenderDOM = document.getElementById('btnRenderDOM');
+				btnRenderDOM.addEventListener('click', onBtnRenderDOMClick);
+
+				var btnRenderVDOM = document.getElementById('btnRenderVDOM');
+				btnRenderVDOM.addEventListener('click', onBtnRenderVDOMClick);
+			}
+
+			function onBtnRenderDOMClick(){
+				document.getElementById('domRoot').innerHTML = '<h1>Welcome to React.js!;</h1>';
+			}
+
+			var counter = 0;
+			function onBtnRenderVDOMClick(){
+				var h1Ele = React.createElement('h1', null, 'Welcome to React.js! - ' + ++counter);
+				ReactDOM.render(h1Ele, document.getElementById('vdomRoot'));
+			}
+		})();
+	</script>
+</head>
+<body>
+	<input type="button" value="Render DOM" id="btnRenderDOM">
+	<div id="domRoot"></div>
+
+	<input type="button" value="Render V-DOM" id="btnRenderVDOM">
+	<div id="vdomRoot"></div>
+	
+</body>
+</html>
