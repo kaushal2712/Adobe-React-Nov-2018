@@ -78,23 +78,42 @@
 			}
 		}
 
-		class Bug{
+		class Bug extends EventEmitter{
 			name  = '';
 			isClosed = false;
 			createdAt = null;
 
 			constructor(name){
+				super();
 				this.name = name;
 				this.createdAt = new Date();
 			}
 
 			toggle(){
 				this.isClosed = !this.isClosed;
+				this.triggerChange();
 				console.log(this);
 			}
 		}
 
 
+		class BugItem extends React.Component{
+			onBugClick = () => {
+				this.props.bug.toggle();
+				this.setState({bug : this.props.bug});
+			}
+			render(){
+				let { bug } = this.props;
+				return(
+					<li>
+						<span className="bugname" onClick={ this.onBugClick }>
+							{JSON.stringify(bug)}
+						</span>
+						<div className="datetime">[Created At]</div>
+					</li>
+				)
+			}
+		}
 		class BugTracker extends React.Component{
 			state = {
 				newBugName : ''
@@ -104,18 +123,14 @@
 			}
 			render(){
 				let bugs = this.props.bugsCollection.getAll();
+				let closedCount = bugs.reduce((result, bug) => bug.isClosed ? ++result : result, 0);
 				let bugItems = bugs.map((bug, index) => (
-					<li key={index}>
-						<span className="bugname" onClick={ () => bug.toggle() }>
-							{JSON.stringify(bug)}
-						</span>
-						<div className="datetime">[Created At]</div>
-					</li>
+					<BugItem bug={bug} key={index} />
 				));
 				return(
 					<div>
 						<section className="stats">
-							<span className="closed">1</span>
+							<span className="closed">{closedCount}</span>
 							<span> / </span>
 							<span>{bugs.length}</span>
 						</section>
