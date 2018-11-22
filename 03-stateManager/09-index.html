@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Spinner - SM</title>
+	<script src="redux.js"></script>
+	<script src="react.development.js"></script>
+	<script src="react-dom.development.js"></script>
+	<script src="babel.min.js"></script>
+	<script type="text/babel">
+		function spinnerReducer(currentState = 0, action){
+			if (action.type === 'UP') return currentState + action.payload;
+			if (action.type === 'DOWN') return currentState - action.payload;
+			if (action.type === 'DOUBLEUP') return currentState * 2;
+			return currentState;
+		}
+		
+		var store = Redux.createStore(spinnerReducer);
+
+		class Spinner extends React.Component{
+			txtDeltaRef = React.createRef();
+			render(){
+				let { value, up, down, doubleUp } = this.props;
+				return(
+					<div>
+						<input type="number" ref={this.txtDeltaRef} />
+						<br/>
+						<input type="button" value="DOWN" onClick={() => down(this.txtDeltaRef.current.valueAsNumber || 1)}/>
+						<span> [ {value} ] </span>
+						<input type="button" value="UP" onClick={() => up(this.txtDeltaRef.current.valueAsNumber || 1)}/>
+						<input type="button" value="DOUBLE-UP" onClick={() => doubleUp()}/>
+					</div>
+				);
+			}
+		}
+
+		{/*let Spinner = function render(props){
+			let { value, up, down } = props;
+			return(
+				<div>
+					<input type="button" value="DOWN" onClick={() => down()}/>
+					<span> [ {value} ] </span>
+					<input type="button" value="UP" onClick={() => up()}/>
+				</div>
+			);
+		}*/}
+		//Higher order components
+		{/*let Spinner = ({ value, up, down, doubleUp }) => (
+			<div>
+				<input type="button" value="DOWN" onClick={() => down()}/>
+				<span> [ {value} ] </span>
+				<input type="button" value="UP" onClick={() => up()}/>
+				<input type="button" value="DOUBLE-UP" onClick={() => doubleUp()}/>
+			</div>
+		);*/}
+		
+		
+		var spinnerActionCreators = {
+			up(value=1){
+				let action = { type : 'UP', payload : value };
+				return action;
+			},
+			down(value=1){
+				let action = { type : 'DOWN', payload : value };
+				return action;
+			},
+			doubleUp(){
+				let action = { type : 'DOUBLEUP'};
+				return action;
+			}
+		}
+
+		let spinnerActions = Redux.bindActionCreators(spinnerActionCreators, store.dispatch);
+		{/*function renderApp(){
+			let value = store.getState();
+			ReactDOM.render(<Spinner value={value} up={spinnerActions.up} down={spinnerActions.down}/>,
+				document.getElementById('root'));
+		}*/}
+		function renderApp(){
+			let value = store.getState();
+			ReactDOM.render(<Spinner value={value} {...spinnerActions} />,
+				document.getElementById('root'));
+		}
+		renderApp();
+		store.subscribe(renderApp);
+	</script>
+</head>
+<body>
+	<div id="root">
+		
+	</div>
+</body>
+</html>
