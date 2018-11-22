@@ -1,0 +1,24 @@
+{
+  "bugs": [
+    {
+      "id": 2,
+      "name": "Bug - 2",
+      "isClosed": false
+    },
+    {
+      "id": 3,
+      "name": "Bug - 3",
+      "isClosed": false
+    }
+  ],
+  "projects": [
+    {
+      "id": "P102",
+      "name": "Bug Tracker"
+    },
+    {
+      "id": "P101",
+      "name": "Payroll Management"
+    }
+  ]
+}
