@@ -53,12 +53,12 @@
 	<script src="babel.min.js"></script>
 	<script src="stateManager.js"></script>
 	<script type="text/babel">
-		class BugItem extends React.Component{
+		class BugItem extends React.PureComponent{
 			onBugClick = () => {
-				//this.props.bug.toggle();
-				
+				this.props.toggle(this.props.bug);
 			}
 			render(){
+				console.log(`${this.props.bug.name} - rendered`);
 				let { bug } = this.props;
 				return(
 					<li>
@@ -71,17 +71,17 @@
 			}
 		}
 		class BugTracker extends React.Component{
-			state = {
-				newBugName : ''
-			};
+			
+			newBugName = '';
+			
 			onAddNewClick = () => {
-				this.props.addNew(this.state.newBugName);
+				this.props.addNew(this.newBugName);
 			}
 			render(){
-				let bugs = this.props.bugs;
+				let { bugs, toggle } = this.props;
 				let closedCount = bugs.reduce((result, bug) => bug.isClosed ? ++result : result, 0);
 				let bugItems = bugs.map((bug, index) => (
-					<BugItem bug={bug} key={index} />
+					<BugItem bug={bug} key={index} toggle={toggle}/>
 				));
 				return(
 					<div>
@@ -101,7 +101,7 @@
 						</section>
 						<section className="edit">
 							<label htmlFor="">Bug Name :</label>
-							<input type="text" onChange={evt => this.setState({newBugName : evt.target.value})} />
+							<input type="text" onChange={evt => this.newBugName = evt.target.value} />
 							<input type="button" value="Add New" onClick={this.onAddNewClick}/>
 						</section>
 						<section className="list">
@@ -118,8 +118,13 @@
 		function bugsReducer(currentState=[], action){
 			if (action.type === 'ADD_NEW'){
 				let newBug = action.payload;
-				currentState.push(newBug);
-				return currentState;
+				let newState = [...currentState, newBug];
+				return newState;
+			}
+			if (action.type === 'UPDATE'){
+				let { oldBug, newBug } = action.payload;
+				let newState = currentState.map(bug => bug === oldBug ? newBug : bug);
+				return newState;
 			}
 			return currentState;
 		}
@@ -133,8 +138,14 @@
 				};
 				let action = { type : 'ADD_NEW', payload : newBug};
 				return action;
+			},
+			toggle(bug){
+				let toggledBug = {...bug, isClosed : !bug.isClosed};
+				let action = { type : 'UPDATE', payload : {oldBug : bug, newBug:toggledBug}};
+				return action;
 			}
 		}
+
 		let store = SM.createStore(bugsReducer);
 		let bugActions = SM.bindActionCreators(bugActionCreators, store.dispatch);	
 
