@@ -123,12 +123,14 @@
 		}
 		class BugTracker extends React.Component{
 			render(){
-				let { bugs, toggle, removeClosed, addNew, bugsCount } = this.props;
+				let { bugs, toggle, removeClosed, addNew, bugsCount, toggleFilter, filtered } = this.props;
+				let filterButtonValue = filtered ? 'Remove Filter' : 'Apply Filter';
 				return(
 					<div>
 						<BugStats {...{bugs, bugsCount}} />
 						<BugSort />
 						<BugEdit addNew={addNew} />
+						<input type="button" value={filterButtonValue} onClick={() => toggleFilter()} />
 						<BugList {...{bugs, toggle, removeClosed}} />
 					</div>
 				)
@@ -153,20 +155,30 @@
 		}
 
 		{/*Reducers*/}
-		function bugsReducer(currentState=[], action){
+		let bugsDefaultState = {
+			bugs : [],
+			filter : false
+		};
+		function bugsReducer(currentState=bugsDefaultState, action){
 			if (action.type === 'ADD_NEW'){
 				let newBug = action.payload;
-				let newState = [...currentState, newBug];
+				let newState = { ...currentState, bugs : [...currentState.bugs, newBug] };
 				return newState;
 			}
 			if (action.type === 'UPDATE'){
 				let { oldBug, newBug } = action.payload;
-				let newState = currentState.map(bug => bug === oldBug ? newBug : bug);
+				let newbugs = currentState.bugs.map(bug => bug === oldBug ? newBug : bug);
+				let newState = { ...currentState, bugs : newbugs }
 				return newState;
 			}
 			if (action.type === 'REMOVE'){
 				let bugsToRemove = action.payload;
-				let newState = currentState.filter(bug => bugsToRemove.indexOf(bug) < 0)
+				let newBugs = currentState.bugs.filter(bug => bugsToRemove.indexOf(bug) < 0)
+				let newState = { ...currentState, bugs : newbugs }
+				return newState;
+			}
+			if (action.type === 'TOGGLE_FILTER'){
+				let newState = {...currentState, filter : !currentState.filter};
 				return newState;
 			}
 			return currentState;
@@ -199,6 +211,10 @@
 				let closedBugs = bugs.filter(bug => bug.isClosed);
 				let action = { type : 'REMOVE', payload : closedBugs};
 				return action;
+			},
+			toggleFilter(){
+				let action = { type : 'TOGGLE_FILTER'};
+				return action;
 			}
 		}
 
@@ -224,16 +240,29 @@
 			spinnerData : spinnerReducer
 		});
 
-		let appStore = Redux.createStore(rootReducer);
+		let hibernatedState = '{"bugsData":{"bugs":[{"name":"Bug 0 ","isClosed":false,"createdAt":"2018-11-22T09:35:33.708Z"},{"name":"Bug 1","isClosed":false,"createdAt":"2018-11-22T09:35:35.898Z"},{"name":"Bug 2","isClosed":false,"createdAt":"2018-11-22T09:35:37.361Z"},{"name":"Bug 3","isClosed":false,"createdAt":"2018-11-22T09:35:41.328Z"}],"filter":true},"spinnerData":14}';
+		let appStore = Redux.createStore(rootReducer, JSON.parse(hibernatedState));
 
 		{/* React Bindings for Redux*/}
 
 		{/*Data Extraction from state for bugTracker*/}
 		let ConnectedBugTracker = (function(){
 			function mapStateToBugTrackerProps(appState){
-				let bugs = appState.bugsData;
+				let bugs = appState.bugsData.bugs;
 				let spinnerValue = appState.spinnerData;
-				return { bugs : bugs.filter((bug, index) => index % 2 === spinnerValue % 2), bugsCount : bugs.length };
+				if(appState.bugsData.filter){
+					return { 
+						bugs : bugs.filter((bug, index) => index % 2 === spinnerValue % 2), 
+						bugsCount : bugs.length, 
+						filtered : appState.bugsData.filter 
+					};
+				} else {
+					return { 
+						bugs : bugs, 
+						bugsCount : bugs.length, 
+						filtered : appState.bugsData.filter
+					};
+				}
 			}
 
 			{/* Action Creation for BugTracker*/}
