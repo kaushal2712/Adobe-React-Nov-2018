@@ -10,10 +10,11 @@ import * as bugActionCreators from './actions';
 
 class BugTracker extends Component{
 	render(){
-		let { bugs, toggle, removeClosed, addNew, bugsCount, toggleFilter, filtered } = this.props;
+		let { bugs, toggle, removeClosed, addNew, bugsCount, toggleFilter, filtered, load } = this.props;
 		let filterButtonValue = filtered ? 'Remove Filter' : 'Apply Filter';
 		return(
 			<div>
+				<input type="button" value="Load" onClick={() => load()} />
 				<BugStats {...{bugs, bugsCount}} />
 				<BugSort />
 				<BugEdit addNew={addNew} />
