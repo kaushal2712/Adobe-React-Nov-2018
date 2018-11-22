@@ -18,8 +18,8 @@ function bugsReducer(currentState=bugsDefaultState, action){
 		return newState;
 	}
 	if (action.type === 'REMOVE'){
-		let bugsToRemove = action.payload;
-		let newBugs = currentState.bugs.filter(bug => bugsToRemove.indexOf(bug) < 0)
+		let bugToRemove = action.payload;
+		let newBugs = currentState.bugs.filter(bug => bug.id !== bugToRemove.id);
 		let newState = { ...currentState, bugs : newBugs }
 		return newState;
 	}

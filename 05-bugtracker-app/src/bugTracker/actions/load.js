@@ -1,4 +1,4 @@
-//import axios from 'axios';
+import * as bugApi from '../services/bugApi';
 
 function getSyncData(){
 	return [
@@ -8,8 +8,22 @@ function getSyncData(){
 		{"name":"Bug 3","isClosed":false,"createdAt":"2018-11-22T09:35:41.328Z"}
 	];
 }
-export function load(){
+
+//sync
+/*export function load(){
 	let bugs = getSyncData();
 	let action = { type : 'LOAD', payload : bugs};
 	return action;
+}*/
+
+//async
+export function load(){
+	return function(dispatch){
+		bugApi
+			.getAll()
+			.then(bugs => {
+				let action = { type : 'LOAD', payload : bugs};
+				dispatch(action);
+			});
+	}
 }
